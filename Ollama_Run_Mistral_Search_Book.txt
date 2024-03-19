@@ -1,0 +1,14 @@
+Install Ollama
+
+Run in PowerShell: ollama pull mistral
+
+Run these in PowerShell to search the book:
+
+$Intro = " What would happen if the Timekeeper Fox faught with Warlock?\n\n"
+$Outro = "\n\n Give me details of who would win between a fight between the Timekeeper Fox and Warlock."
+$Content = Get-Content The_Warlock_Name.txt -Raw
+$FullText = $Intro + $Content + $Outro
+$FullText | Out-File -FilePath TempNovel.txt -Encoding UTF8
+
+Get-Content -Path "TempNovel.txt" | ollama run mistral
+

@@ -1,0 +1,6 @@
+pip install SpeechRecognition
+pip install -U gtts
+pip install pydub
+python -m pip install pyaudio
+pip install ffmpeg
+pip install -U openai==0.28

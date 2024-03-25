@@ -1,5 +1,4 @@
 #Requires
-#   pip install openai
 #   pip install SpeechRecognition
 #   pip install -U gtts
 #   pip install pydub

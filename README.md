@@ -8,4 +8,4 @@ Requires an OpenAI API key, stored in the file: OPEN_AI_KEY.txt
 
 To run OpenAI_Personal_Assistant.py first run (in an administrator Commdand Prompt/Terminal):
 
-pip install -r OpenAI_Personal_Assistant_Requirements.txt
+pip install -r requirements_OpenAI_Personal_Assistant.txt

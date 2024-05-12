@@ -1,6 +1,6 @@
 /*
 Memory Frequency Generator by Anthro Teacher (AnthroHeart)
-Version 1.4
+Version 1.5
 Created: 4/26/2024
 */
 
@@ -17,7 +17,7 @@ Created: 4/26/2024
 #include <regex>
 
 const double PI = 3.14159265358979323846;
-const std::string VERSION = "v1.4";
+const std::string VERSION = "v1.5";
 
 void writeWAVFileChunk(const std::string &filename, const std::vector<double> &waveformChunk, double sampleRate, int numChannels, int bitsPerSample)
 {
@@ -122,13 +122,13 @@ int computeSampleRate(double frequency)
     int multiplier = 1;
     int sampleRate = frequency;
 
-    while (sampleRate <= 767500 && sampleRate == static_cast<int>(frequency * multiplier))
+    while (sampleRate <= 96000 && sampleRate == static_cast<int>(frequency * multiplier))
     {
         multiplier *= 2;
         sampleRate = frequency * multiplier;
     }
 
-    if (sampleRate > 767500)
+    if (sampleRate > 96000)
     {
         sampleRate /= 2;
     }

@@ -4,9 +4,9 @@
 #include <algorithm>
 #include <cctype>
 #include "picosha2.h"
+#include <limits>
 
 bool isFilename(const std::string& input) {
-    // Check if the 3rd or 4th character from the end is a "."
     size_t len = input.length();
     return (len >= 4 && (input[len - 4] == '.' || input[len - 3] == '.'));
 }
@@ -27,6 +27,24 @@ std::string readFile(const std::string& filePath) {
     return fileContents;
 }
 
+std::string truncate_to_64_bit(const std::string& hash256) {
+    // Each 64-bit group is 16 hex characters
+    unsigned long long group1 = std::stoull(hash256.substr(0, 16), nullptr, 16);
+    unsigned long long group2 = std::stoull(hash256.substr(16, 16), nullptr, 16);
+    unsigned long long group3 = std::stoull(hash256.substr(32, 16), nullptr, 16);
+    unsigned long long group4 = std::stoull(hash256.substr(48, 16), nullptr, 16);
+
+    // Add the four 64-bit groups together
+    unsigned long long combined_64_bit = group1 + group2 + group3 + group4;
+
+    // Since we are working with 64-bit integers, the modulo operation is inherent
+    // We directly convert the result to a hex string
+    std::stringstream ss;
+    ss << std::hex << std::uppercase << (combined_64_bit & 0xFFFFFFFFFFFFFFFFULL);
+    return ss.str();
+}
+
+
 int main() {
     std::cout << "Multi-Hashing SHA-256 by Anthro Teacher." << std::endl;
     std::cout << "This will repeat your Text a specified number of times." << std::endl;
@@ -46,7 +64,13 @@ int main() {
     std::cout << "Number of Hash Levels [1-100]: ";
     std::cin >> num_hash_levels;
     std::cin.ignore(); // Ignore the newline character
-    
+
+    std::string truncate_choice;
+    std::cout << "Truncate to 64-Bit: (Y/n): ";
+    std::getline(std::cin, truncate_choice);
+
+    bool truncate_to_64 = (truncate_choice == "Y" || truncate_choice == "y");
+
     std::string line;
     int linenum = 0;
     std::string repeated_text = "";
@@ -75,6 +99,11 @@ int main() {
                 hashed_text = picosha2::hash256_hex_string(repeated_hash);
                 std::transform(hashed_text.begin(), hashed_text.end(), hashed_text.begin(), ::toupper);
             }
+
+            if (truncate_to_64) {
+                hashed_text = truncate_to_64_bit(hashed_text);
+            }
+
             outFile << line << ": " << hashed_text << std::endl;
             linenum += 1;
             std::cout << "\nLine #" << linenum << " written." << std::endl;
@@ -103,8 +132,18 @@ int main() {
             std::transform(hashed_text.begin(), hashed_text.end(), hashed_text.begin(), ::toupper);
         }
 
+        if (truncate_to_64) {
+            hashed_text = truncate_to_64_bit(hashed_text);
+        }
+
         std::cout << "\n[Repeats: " << times_to_repeat << "] (Hash level: " << num_hash_levels << "): " << hashed_text << std::endl;
     }
 
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+    // Wait for the user to press Enter before quitting
+    std::cout << "Press Enter to Quit...";
+    std::cin.get();
+    
     return 0;
 }

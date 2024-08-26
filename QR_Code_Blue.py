@@ -16,7 +16,7 @@ def generate_qr_code(text, filename="qrcode.png"):
     qr.make(fit=True)
 
     # Create an image from the QR code instance
-    img = qr.make_image(fill_color="black", back_color="white")
+    img = qr.make_image(fill_color="black", back_color="blue")
 
     # Save the image as a JPG file
     img.save(filename)

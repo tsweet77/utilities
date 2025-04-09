@@ -29,6 +29,7 @@ Cwork2Dlg::Cwork2Dlg(CWnd* pParent /*=nullptr*/)
 	, m_nRepeat(10000)
 	, m_nLevel(100)
 	, m_strResult(_T(""))
+	, m_bUppercase(FALSE)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -41,12 +42,14 @@ void Cwork2Dlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDT_LEVEL, m_nLevel);
 	DDX_Text(pDX, IDC_EDT_RET, m_strResult);
 	DDX_Control(pDX, IDC_CMB_TYPE, m_cmbType);
+	DDX_Check(pDX, IDC_CHK_UPPERCASE, m_bUppercase);
 }
 
 BEGIN_MESSAGE_MAP(Cwork2Dlg, CDialog)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDOK, &Cwork2Dlg::OnBnClickedOk)
+	ON_BN_CLICKED(ID_BTN_INSERT_FILE, &Cwork2Dlg::OnBnClickedBtnInsertFile)
 END_MESSAGE_MAP()
 
 // Cwork2Dlg message handlers
@@ -238,7 +241,8 @@ void Cwork2Dlg::calc()
 		m_strResult.Format(L"%S", pHashNow);
 	}
 
-	m_strResult.MakeUpper();
+	if (m_bUppercase)
+		m_strResult.MakeUpper();
 
 L_EXIT:
 
@@ -311,4 +315,48 @@ LRESULT Cwork2Dlg::WindowProc(UINT message, WPARAM wParam, LPARAM lParam)
 	}
 
 	return CDialog::WindowProc(message, wParam, lParam);
+}
+
+void Cwork2Dlg::OnBnClickedBtnInsertFile()
+{
+	UpdateData(TRUE);
+
+	// Create a file dialog
+    CFileDialog fileDlg(TRUE); // TRUE for Open dialog
+
+    // Show the dialog and check if the user selected a file
+    if (fileDlg.DoModal() == IDOK)
+    {
+        // Get the selected file path
+        CString filePath = fileDlg.GetPathName();
+
+		// Open the file using CFile
+		CFile file;
+		try
+		{
+			file.Open(filePath, CFile::modeRead | CFile::typeBinary);
+
+			UINT nLen = file.GetLength();
+			BYTE* pBuf = new BYTE[nLen];
+			file.Read(pBuf, nLen);
+
+			char szHash[129]; memset(szHash, 0, sizeof(szHash));
+			get_sha3_512(pBuf, nLen, szHash);
+			m_strPlain.Format(L"%S", szHash);
+			if (m_bUppercase)
+				m_strPlain.MakeUpper();
+
+			delete pBuf;			
+			file.Close();
+
+			UpdateData(FALSE);
+		}
+		catch (CFileException* e)
+		{
+			TCHAR errorMessage[1024];
+			e->GetErrorMessage(errorMessage, 1024);
+			AfxMessageBox(errorMessage);
+			e->Delete();
+		}
+    }
 }

@@ -40,4 +40,6 @@ public:
 	void calc();
 	virtual LRESULT WindowProc(UINT message, WPARAM wParam, LPARAM lParam);
 	CComboBox m_cmbType;
+	BOOL m_bUppercase;
+	afx_msg void OnBnClickedBtnInsertFile();
 };
